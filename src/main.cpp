@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    RenderWindow window("GAME v1.0", 1280, 720);
+    RenderWindow window("Brawlers' Blitz v1.0", 1280, 720);
 
     ResourceManager manager(window);    
 
