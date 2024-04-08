@@ -29,6 +29,7 @@ To build and run this project, you will need the following dependencies:
 ## Directory Structure
 
 The project has the following directory structure:
+```
 ├── include/
 │   └── headers/
 │   └── SDL2/
@@ -40,6 +41,7 @@ The project has the following directory structure:
 ├── obj/
 ├── bin/
 └── makefile
+```
 
 - `include/`: Contains the header files for the project.
 - `include/SDL2`: Contains SDL2 header files.
