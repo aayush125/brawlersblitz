@@ -9,10 +9,11 @@ class Background {
         std::vector<SDL_Rect> m_collisionBoxes;
         SDL_Texture* m_background;
         ResourceManager& m_resManager;
-
-        void loadBackground(int p_level);
+        int mScene{};
     
     public:
+        Background(ResourceManager& p_manager);
+
         Background(int p_level, ResourceManager& p_manager);
 
         enum collionBoxes {
@@ -23,6 +24,9 @@ class Background {
             PLATFORMFOUR
         };
 
+        void init(int pScene);
+        void set_scene(int pLevel);
+        void load();
         void render();
         void addCollider(SDL_Rect p_collider);
         SDL_Rect& getCollider(int p_level);

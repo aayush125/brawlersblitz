@@ -11,9 +11,10 @@ class ResourceManager {
     public:
         ResourceManager(RenderWindow& p_window);
 
-        SDL_Texture* loadTex(const char* path);
-        void renderTex(SDL_Texture* p_texture, SDL_Rect&, SDL_Rect&, bool);
-        void renderBackground(SDL_Texture* p_texture, SDL_Rect* p_srcrect, SDL_Rect* p_dstrect);
+        SDL_Texture* load_tex(const char* path);
+        void render_tex(SDL_Texture* p_texture, SDL_Rect&, SDL_Rect&, bool);
+        void render_ui(SDL_Texture* p_texture, SDL_Rect*, SDL_Rect*);
+        void render_bg(SDL_Texture* p_texture, SDL_Rect* p_srcrect, SDL_Rect* p_dstrect);
 
-        const std::string& getBasePathFromWindow();
+        const std::string& get_base_path_from_window();
 };

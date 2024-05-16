@@ -5,76 +5,73 @@
 #include <string>
 #include <iostream>
 
-Spritesheet::Spritesheet() {}
-
-Spritesheet::Spritesheet(ResourceManager* manager, const char *path, int row, int column, int animationFps, std::vector<int> animationFrames, bool loop)
+Spritesheet::Spritesheet(ResourceManager& manager, const char *path, int row, int column, int animationFps, std::vector<int> animationFrames, bool loop) : mManager{manager}
 {
-    m_managerref = manager;
 
-    m_spritesheet_image = m_managerref->loadTex(path);
+    mSpritesheetImage = mManager.load_tex(path);
 
-    m_animationFrames = animationFrames;
-    m_animationSize = animationFrames.size();
-    m_animationDelay = 1.0f / animationFps;
-    m_currentAnimFrame = 0;
-    m_animationTimer = 0.0f;
-    m_shouldFlip = false;
-    m_loop = loop;
+    mAnimationFrames = animationFrames;
+    mAnimationSize = animationFrames.size();
+    mAnimationDelay = 1.0f / animationFps;
+    mCurrentAnimFrame = 0;
+    mAnimationTimer = 0.0f;
+    mShouldFlip = false;
+    mLoop = loop;
 
-    SDL_QueryTexture(m_spritesheet_image, NULL, NULL, &m_currentFrame.w, &m_currentFrame.h);
-    m_currentFrame.w /= column;
-    m_currentFrame.h /= row;
+    SDL_QueryTexture(mSpritesheetImage, NULL, NULL, &mCurrentFrame.w, &mCurrentFrame.h);
+    mCurrentFrame.w /= column;
+    mCurrentFrame.h /= row;
 
-    m_spriteDimensions.w = m_currentFrame.w;
-    m_spriteDimensions.h = m_currentFrame.h;
+    mSpriteDimensions.w = mCurrentFrame.w;
+    mSpriteDimensions.h = mCurrentFrame.h;
 }
 
 void Spritesheet::select_sprite(int x, int y)
 {
-    m_currentFrame.x = x * m_currentFrame.w;
-    m_currentFrame.y = y * m_currentFrame.h;
+    mCurrentFrame.x = x * mCurrentFrame.w;
+    mCurrentFrame.y = y * mCurrentFrame.h;
 }
 
 void Spritesheet::draw_selected_sprite(SDL_Rect& position)
 {
-    m_managerref->renderTex(m_spritesheet_image, m_currentFrame, position, m_shouldFlip);
+    mManager.render_tex(mSpritesheetImage, mCurrentFrame, position, mShouldFlip);
 }
 
 void Spritesheet::update(float deltaTime)
 {
-    if (!m_loop && m_currentAnimFrame == m_animationSize - 1) {
-        m_finishedPlaying = true;
-        m_currentAnimFrame = 0;
+    if (!mLoop && mCurrentAnimFrame == mAnimationSize - 1) {
+        mFinishedPlaying = true;
+        mCurrentAnimFrame = 0;
         return;
     }
 
-    m_finishedPlaying = false;
+    mFinishedPlaying = false;
 
-    m_animationTimer += deltaTime;
+    mAnimationTimer += deltaTime;
 
-    if (m_animationTimer >= m_animationDelay)
+    if (mAnimationTimer >= mAnimationDelay)
     {
-        m_currentAnimFrame = (m_currentAnimFrame + 1) % m_animationFrames.size();
-        m_animationTimer = 0.0f;
+        mCurrentAnimFrame = (mCurrentAnimFrame + 1) % mAnimationFrames.size();
+        mAnimationTimer = 0.0f;
     }
 }
 
-void Spritesheet::playAnim(SDL_Rect& p_position, bool p_flipFlag)
+void Spritesheet::play_spritesheet(SDL_Rect& p_position, bool p_flipFlag)
 {
-    m_shouldFlip = p_flipFlag;
+    mShouldFlip = p_flipFlag;
 
-    select_sprite(m_animationFrames[m_currentAnimFrame], 0);
+    select_sprite(mAnimationFrames[mCurrentAnimFrame], 0);
     draw_selected_sprite(p_position);
 }
 
-const SDL_Rect& Spritesheet::getSpriteDim() const {
-    return m_spriteDimensions;
+const SDL_Rect& Spritesheet::get_sprite_dims() const {
+    return mSpriteDimensions;
 }
 
-const int Spritesheet::getCurrentFrameNum() const {
-    return m_currentAnimFrame;
+const int Spritesheet::get_current_frame_number() const {
+    return mCurrentAnimFrame;
 }
 
-const bool Spritesheet::finishedPlaying() const {
-    return m_finishedPlaying;
+const bool Spritesheet::finished_playing() const {
+    return mFinishedPlaying;
 }

@@ -19,20 +19,21 @@ class RenderWindow {
         std::string m_basePath;
     public:
         RenderWindow(const char* p_title, int p_w, int p_h);
-        SDL_Texture* loadTexture(const char* p_filePath);
-        void cleanUp();
+        SDL_Texture* load_texture(const char* p_filePath);
+        void cleanup();
         void clear();
         void render(Entity& p_entity);
         void render(SDL_Texture* p_texture, SDL_Rect& p_srcrect, SDL_Rect& p_dstrect, bool p_shouldFlip);
-        void renderBackground(SDL_Texture* p_texture, SDL_Rect* p_srcrect, SDL_Rect* p_dstrect);
+        void render_background(SDL_Texture* p_texture, SDL_Rect* p_srcrect, SDL_Rect* p_dstrect);
+        void render_ui(SDL_Texture* p_texture, SDL_Rect* p_srcrect, SDL_Rect* p_dstrect);
         void display();
         void fullscreen();
         
-        SDL_Renderer* getRenderer();
-        const std::string& getBasePath();
-        const int getWindowHeight() const;
-        const int getWindowWidth() const;
-        const SDL_Rect GetWindowRect() const;
-        void recalculateScalingFactors();
-        const Vector2f getScalingFactors() const;
+        SDL_Renderer* get_renderer();
+        const std::string& get_base_path();
+        const int get_window_height() const;
+        const int get_window_width() const;
+        const SDL_Rect get_window_rect() const;
+        void recalculate_scaling_factors();
+        const Vector2f get_scaling_factors() const;
 };

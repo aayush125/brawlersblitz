@@ -5,9 +5,21 @@
 #define PRIMARY_RES_H 1080.0f
 
 #define SPRITE_SCALE_FACTOR 5
+#define HEALTHBAR_SCALE_X 6
+#define HEALTHBAR_SCALE_Y 8
 
-#define CHAR_NORMAL_WIDTH 34
-#define CHAR_ATTACK_WIDTH 78
+#define PLAYER_ONE_HEALTHBAR_X 30
+#define PLAYER_TWO_HEALTHBAR_X 1236
+#define HEALTHBAR_Y 30
+
+#define CHAR_NORMAL_WIDTH 40
+#define MARTIAL_ATTACK_WIDTH 80
+#define WIZARD_ATTACK_WIDTH 62
+
+#define PLAYER_ONE_INIT_X 10
+#define PLAYER_TWO_INIT_X 850
+
+#define WIZARD_SCALE 3
 
 namespace utils {
     inline float hireTimeInSeconds() {

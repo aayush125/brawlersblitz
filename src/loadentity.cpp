@@ -21,7 +21,7 @@ void loadBackgroundEntity(int p_level, RenderWindow& p_window, Entity& p_entity)
             backgroundFile = "background1.png";
     }
 
-    SDL_Texture* backgroundTexture = p_window.loadTexture((p_window.getBasePath() + "../assets/backgrounds/" + backgroundFile).c_str());
+    SDL_Texture* backgroundTexture = p_window.load_texture((p_window.get_base_path() + "../assets/backgrounds/" + backgroundFile).c_str());
     
     p_entity = Entity(0, 0, backgroundTexture, SDL_Rect{}, SDL_Rect{}, false, false);
 
@@ -30,7 +30,7 @@ void loadBackgroundEntity(int p_level, RenderWindow& p_window, Entity& p_entity)
 
 void loadSpriteEntity(std::string p_sprite, RenderWindow& p_window, Entity& p_entity) {
     
-    SDL_Texture* spriteTexture = p_window.loadTexture((p_window.getBasePath() + "../assets/sprites/" + p_sprite).c_str());
+    SDL_Texture* spriteTexture = p_window.load_texture((p_window.get_base_path() + "../assets/sprites/" + p_sprite).c_str());
     
     int width, height;
     SDL_QueryTexture(spriteTexture, NULL, NULL, &width, &height);

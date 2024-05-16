@@ -23,10 +23,10 @@ RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h) : m_window(NUL
 
     m_basePath = SDL_GetBasePath();
 
-    recalculateScalingFactors();
+    recalculate_scaling_factors();
 }
 
-SDL_Texture* RenderWindow::loadTexture(const char* p_filePath) {
+SDL_Texture* RenderWindow::load_texture(const char* p_filePath) {
     SDL_Texture* texture = NULL;
     texture = IMG_LoadTexture(m_renderer, p_filePath);
 
@@ -37,7 +37,7 @@ SDL_Texture* RenderWindow::loadTexture(const char* p_filePath) {
     return texture;
 }
 
-void RenderWindow::cleanUp() {
+void RenderWindow::cleanup() {
     SDL_DestroyWindow(m_window);
 }
 
@@ -60,6 +60,16 @@ void RenderWindow::render(Entity& p_entity) {
     SDL_RenderCopy(m_renderer, p_entity.getTex(), sRect, dRect);
 }
 
+void RenderWindow::render_ui(SDL_Texture* pTexture, SDL_Rect* pSrcRect, SDL_Rect* pDstRect) {
+    SDL_Rect renderRect;
+    renderRect.x = static_cast<int>(pDstRect->x * m_scaleX);
+    renderRect.y = static_cast<int>(pDstRect->y * m_scaleY);
+    renderRect.w = static_cast<int>(pDstRect->w * m_scaleX);
+    renderRect.h = static_cast<int>(pDstRect->h * m_scaleY);
+    
+    SDL_RenderCopy(m_renderer, pTexture, pSrcRect, &renderRect);
+}
+
 void RenderWindow::render(SDL_Texture* p_texture, SDL_Rect& p_srcrect, SDL_Rect& p_dstrect, bool p_shouldFlip) {
     SDL_Rect srcrect = p_srcrect;
     SDL_FRect renderRect;
@@ -71,7 +81,7 @@ void RenderWindow::render(SDL_Texture* p_texture, SDL_Rect& p_srcrect, SDL_Rect&
     SDL_RenderCopyExF(m_renderer, p_texture, &srcrect, &renderRect, 0.0, nullptr, p_shouldFlip ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
-void RenderWindow::renderBackground(SDL_Texture* p_texture, SDL_Rect* p_srcrect, SDL_Rect* p_dstrect) {
+void RenderWindow::render_background(SDL_Texture* p_texture, SDL_Rect* p_srcrect, SDL_Rect* p_dstrect) {
     SDL_RenderCopy(m_renderer, p_texture, p_srcrect, p_dstrect);
 }
 
@@ -85,36 +95,36 @@ void RenderWindow::fullscreen() {
     SDL_SetWindowFullscreen(m_window, isFullscreen ? 0 : fullscreenFlag);
 }
 
-const std::string& RenderWindow::getBasePath() {
+const std::string& RenderWindow::get_base_path() {
     return m_basePath;
 }
 
-SDL_Renderer* RenderWindow::getRenderer() {
+SDL_Renderer* RenderWindow::get_renderer() {
      return m_renderer;
 }
 
-const int RenderWindow::getWindowHeight() const {
+const int RenderWindow::get_window_height() const {
     return m_windowHeight;
 }
 
-const int RenderWindow::getWindowWidth() const {
+const int RenderWindow::get_window_width() const {
     return m_windowWidth;
 }
 
-const SDL_Rect RenderWindow::GetWindowRect() const {
+const SDL_Rect RenderWindow::get_window_rect() const {
     SDL_Rect rect{};
     SDL_GetWindowSize(m_window, &rect.w, &rect.h);
 
     return rect;
 }
 
-void RenderWindow::recalculateScalingFactors() {
-    SDL_Rect windowRect = GetWindowRect();
+void RenderWindow::recalculate_scaling_factors() {
+    SDL_Rect windowRect = get_window_rect();
     m_scaleX = (float)windowRect.w / PRIMARY_RES_W;
     m_scaleY = (float)windowRect.h / PRIMARY_RES_H;
 }
 
-const Vector2f RenderWindow::getScalingFactors() const {
+const Vector2f RenderWindow::get_scaling_factors() const {
     Vector2f scalingFactors(m_scaleX, m_scaleY);
     return scalingFactors;
 }

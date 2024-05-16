@@ -1,38 +1,33 @@
 #include "Characters.hpp"
 #include "Inputs.hpp"
 
-CharacterBase::CharacterBase(int p_speed, int p_char_ID) : m_speed{p_speed}, m_characterID{p_char_ID} {}
+CharacterBase::CharacterBase() {}
 
-void CharacterBase::addSpritesheet(const Spritesheet p_spritesheet) {
-    m_spritesheets.push_back(p_spritesheet);
+CharacterBase::CharacterBase(int p_speed, int p_char_ID) : mSpeed{p_speed}, mCharacterID{p_char_ID} {}
+
+void CharacterBase::add_spritesheet(const Spritesheet p_spritesheet) {
+    mSpritesheets.push_back(p_spritesheet);
 }
 
-const SDL_Rect& CharacterBase::getCharRect() const {
-    return m_position;
-}
-
-Spritesheet& CharacterBase::getSpritesheet(int index) {
-    return m_spritesheets[index];
-}
-
-const SDL_Rect& CharacterBase::getCharDimensions() {
-    return m_spritesheets[m_index].getSpriteDim();
-}
-
-void CharacterBase::performAttack2() {}
-void CharacterBase::performAttack3() {}
-
-void CharacterBase::setSpritesheet(int p_index) {
-    if (p_index > static_cast<int>(m_spritesheets.size() - 1)) {
+void CharacterBase::set_spritesheet(int p_index) {
+    if (p_index > static_cast<int>(mSpritesheets.size() - 1)) {
         std::string errorMessage = "Spritesheet index for MartialHero out of bounds. Provided " +
                                    std::to_string(p_index) +
                                    " for \"spritesheets\" size of " +
-                                   std::to_string(static_cast<int>(m_spritesheets.size() - 1)) +
+                                   std::to_string(static_cast<int>(mSpritesheets.size() - 1)) +
                                    ". Using the default spritesheet (index: 0) instead.";
         throw std::out_of_range(errorMessage);
     }
 
-    m_index = p_index;
+    mIndex = p_index;
+}
+
+const bool CharacterBase::is_attacking() const {
+    return mIsAttacking;
+}
+
+const bool CharacterBase::facing_left() const {
+    return mFacingLeft;
 }
 
 void CharacterBase::move(float p_deltaTime, const Uint8* p_keystates, int spritesheetSelectionIndex, const SDL_Rect& p_windowRect, int p_speedIncrement = 0, bool p_moveLeft = false) {
@@ -40,181 +35,293 @@ void CharacterBase::move(float p_deltaTime, const Uint8* p_keystates, int sprite
     int speed{};
     bool isMovingRight = false;
     bool isMovingLeft = false;
+    static bool performingAttackOne = false;
+    static bool performingAttackTwo = false;
     SDL_Scancode leftKey;
     SDL_Scancode rightKey;
-    SDL_Scancode attackKey;
+    SDL_Scancode attackOneKey;
+    SDL_Scancode attackTwoKey;
     SDL_Scancode jumpKey;
+    SDL_Scancode sprintKey;
 
-    if (m_characterID == CharacterBase::characterIDs::PLAYERONE) {
+    if (!mIsAttacking) {
+        performingAttackOne = false;
+        performingAttackTwo = false;
+    }
+
+    if (mCharacterID == CharacterBase::characterIDs::PLAYERONE) {
         leftKey = SDL_SCANCODE_A;
         rightKey = SDL_SCANCODE_D;
-        attackKey = SDL_SCANCODE_X;
+        attackOneKey = SDL_SCANCODE_Z;
+        attackTwoKey = SDL_SCANCODE_X;
         jumpKey = SDL_SCANCODE_SPACE;
-    } else if (m_characterID == CharacterBase::characterIDs::PLAYERTWO) {
+        sprintKey = SDL_SCANCODE_LSHIFT;
+    } else if (mCharacterID == CharacterBase::characterIDs::PLAYERTWO) {
         leftKey = SDL_SCANCODE_LEFT;
         rightKey = SDL_SCANCODE_RIGHT;
-        attackKey = SDL_SCANCODE_SLASH;
+        attackOneKey = SDL_SCANCODE_PERIOD;
+        attackTwoKey = SDL_SCANCODE_SLASH;
         jumpKey = SDL_SCANCODE_RETURN;
+        sprintKey = SDL_SCANCODE_RSHIFT;
     } else {
-        std::cerr << "Invalid character ID: " << m_characterID << '\n';
+        std::cerr << "Invalid character ID: " << mCharacterID << '\n';
     }
 
     if (p_keystates[rightKey]) {
-        // setFlip(false);
-        m_lastPressedLeft = false;
+        mFacingLeft = false;
         isMovingRight = true;
-        speed = m_speed;
-        if (p_keystates[SDL_SCANCODE_LSHIFT]) {
+        speed = mSpeed;
+        if (p_keystates[sprintKey]) {
             speed += 300;
         }
-        // std::cout << "RIGHT RIGHT RIGHT!!!\n";
     } 
     if (p_keystates[leftKey]) {
-        // setFlip(true);
-        m_lastPressedLeft = true;
+        mFacingLeft = true;
         isMovingLeft = true;
-        speed = -m_speed;
-        if (p_keystates[SDL_SCANCODE_LSHIFT]) {
+        speed = -mSpeed;
+        if (p_keystates[sprintKey]) {
             speed -= 300;
         }
-        // std::cout << "LEFT LEFT LEFT!!!\n";
     }
-    if (p_keystates[attackKey]) {
-        m_isAttacking = true;
+    if (p_keystates[attackOneKey]) {
+        mIsAttacking = true;
+        performingAttackOne = true;
+    } else if (p_keystates[attackTwoKey]) {
+        mIsAttacking = true;
+        performingAttackTwo = true;
     }
 
-    if (p_keystates[jumpKey] && !m_isInAir) {
-        // m_position.y -= 500 * p_deltaTime;
-        m_verticalVelocity = -300.0f;
-        m_isInAir = true;
+    if (p_keystates[jumpKey] && !mIsInAir) {
+        mJumpVelocity = -300.0f;
+        mIsInAir = true;
     }
 
     bool isMoving = isMovingRight || isMovingLeft;
 
-    if (isMoving) {
+    if (!isMoving && !mIsInAir && !mIsAttacking) {
         try {
-            setSpritesheet(MartialHero::RUN);
-        } catch (const std::out_of_range& e) {
-            throw;
-        }
-    } 
-    if (m_isInAir) {
-        try {
-            setSpritesheet(MartialHero::JUMP);
-            m_spritesheets[m_index].m_playOnce = true;
-        } catch (const std::out_of_range& e) {
-            throw;
-        }
-    } 
-    if (m_isAttacking) {
-        try {
-            setSpritesheet(MartialHero::ATTACK1);
-        } catch (const std::out_of_range& e) {
-            throw;
-        }
-    }
-    if (!isMoving && !m_isInAir && !m_isAttacking) {
-        try {
-            setSpritesheet(MartialHero::IDLE);
+            set_spritesheet(MartialHero::IDLE);
         } catch (const std::out_of_range& e) {
             throw;
         }
 
         return;
     }
-    
-    m_position.x += speed * p_deltaTime;
-    m_position.y += m_verticalVelocity * p_deltaTime * 8;
 
-    // The horizontal padding around each frame averages around 35
-    if (m_position.x < -m_position.w + 35) {
-        m_position.x = 1920 - 35;
-    } else if (m_position.x + 35 > 1920) {
-        m_position.x = -m_position.w + 35;
+    if (isMoving) {
+        try {
+            set_spritesheet(MartialHero::RUN);
+        } catch (const std::out_of_range& e) {
+            throw;
+        }
+    }
+
+    if (mIsInAir) {
+        try {
+            set_spritesheet(MartialHero::JUMP);
+        } catch (const std::out_of_range& e) {
+            throw;
+        }
+    }
+    if (mIsAttacking) {
+        // try {
+        //     const std::string& playerClass = get_character_class();
+        //     if (playerClass == "MartialHero") {
+        //         set_spritesheet(MartialHero::ATTACK1);
+        //     } else if (playerClass == "Wizard") {
+        //         set_spritesheet(Wizard::ATTACK1);
+        //     }
+        // } catch (const std::out_of_range& e) {
+        //     throw;
+        // }
+        if (performingAttackOne) perform_attack_one();
+        else if (performingAttackTwo) perform_attack_two();
+    }
+    
+    mPosition.x += speed * p_deltaTime;
+    mPosition.y += mJumpVelocity * p_deltaTime * 8;
+
+    // The horizontal padding around each frame averages around 200
+    if (mPosition.x < -mPosition.w + 200) {
+        mPosition.x = 1920 - 200;
+    } else if (mPosition.x + 200 > 1920) {
+        mPosition.x = -mPosition.w + 200;
     }
 }
 
-MartialHero::MartialHero(ResourceManager* p_manager, int p_speed, int p_char_ID) : CharacterBase(p_speed, p_char_ID) {
-    std::cout << "From ID:\t" << p_char_ID << '\n';
-    load(p_manager);
+void CharacterBase::render_animation() {
+    mSpritesheets[mIndex].play_spritesheet(mPosition, mFacingLeft);
 }
 
-void MartialHero::playAnim() {
-    m_spritesheets[m_index].playAnim(m_position, m_lastPressedLeft);
+void CharacterBase::set_position(SDL_Rect p_position) {
+    mPosition = p_position;
 }
 
-void MartialHero::performAttack1() {
-    std::cout << "Performed attack 1 by Martial Hero!\n";
+const int CharacterBase::get_current_anim_index() const {
+    return mIndex;
 }
 
-void CharacterBase::setPosition(SDL_Rect p_position) {
-    // if (p_position.w == 0 || p_position.h == 0) {
-    //     std::cerr << "Warning: Setting width or height of the character to zero!\n";
-    //     std::cerr << "\tWidth: " << p_position.w << '\n';
-    //     std::cerr << "\tHeight: " << p_position.h << '\n';
-    // }
-    m_position = p_position;
+void CharacterBase::set_initial_position(SDL_Point p_pos) {
+    mInitialPosition = p_pos;
+    mPosition.x = p_pos.x;
+    mPosition.y = p_pos.y;
 }
 
-const int CharacterBase::getCurrentAnimIndex() const {
-    return m_index;
-}
-
-void MartialHero::setInitialPosition(SDL_Point p_pos) {
-    m_initialPosition = p_pos;
-    m_unscaledPosition = p_pos;
-    m_position.x = p_pos.x;
-    m_position.y = p_pos.y;
-}
-
-void MartialHero::update(float deltaTime, const SDL_Rect& p_windowRect) {
+void CharacterBase::update(float deltaTime, const SDL_Rect& p_windowRect, const Uint8* pKeystates) {
     // update process: get keyboard updates -> update position -> update scaling -> call spritesheet update -> ready for rendering
 
-    const Uint8* keystates = getKeyboardState();
-
-    if (!m_isAttacking) {
+    if (!mIsAttacking) {
         try {
-            move(deltaTime, keystates, 0, p_windowRect);
+            move(deltaTime, pKeystates, 0, p_windowRect);
         } catch (std::out_of_range& e) {
             throw;
         }
     } else {
-        if (m_spritesheets[m_index].finishedPlaying()) {
-            m_isAttacking = false;
-            setSpritesheet(MartialHero::IDLE);
+        if (mSpritesheets[mIndex].finished_playing()) {
+            mIsAttacking = false;
+            set_spritesheet(MartialHero::IDLE);
         }
     }
 
-    m_spritesheets[m_index].update(deltaTime);
+    mSpritesheets[mIndex].update(deltaTime);
 }
 
-void MartialHero::load(ResourceManager* p_manager) {
-    addSpritesheet(Spritesheet(p_manager, 
-    (p_manager->getBasePathFromWindow() + "../assets/sprites/martial_hero/idle_copy.png").c_str(), 
+const SDL_Rect& CharacterBase::get_character_dims() const {
+    return mSpritesheets[mIndex].get_sprite_dims();
+}
+
+const SDL_Point& CharacterBase::get_initial_position() const {
+    return mInitialPosition;
+}
+
+SDL_Rect& CharacterBase::get_current_position() {
+    return mPosition;
+}
+
+void CharacterBase::take_damage(int pDamageAmount) {
+    if (mHealthPoints >= 0) mHealthPoints -= pDamageAmount;
+    std::cout << "Character ID: " << mCharacterID << " remaining health points: " << mHealthPoints << '\n';
+}
+
+const std::string& CharacterBase::get_character_class() const {
+    static const std::string& baseClass = "CharacterBase";
+    return baseClass;
+}
+
+void CharacterBase::perform_attack_one() {
+    std::cerr << "Base class attack one called\n";
+}
+
+void CharacterBase::perform_attack_two() {
+    std::cerr << "Base class attack two called\n";
+}
+
+MartialHero::MartialHero(ResourceManager& p_manager, int p_speed, int p_char_ID, bool pFacingLeft) : CharacterBase(p_speed, p_char_ID) {
+    mHealthPoints = 100;
+    mDamageAmount = 4;
+    mFacingLeft = pFacingLeft;
+    load(p_manager);
+}
+
+const std::string& MartialHero::get_character_class() const {
+    static const std::string& martialHeroClass = "MartialHero";
+    return martialHeroClass;
+}
+
+void MartialHero::perform_attack_one() {
+    try {
+        set_spritesheet(MartialHero::ATTACK1);
+    } catch (const std::exception& e) {
+        throw;
+    }
+
+    std::cout << "MartialHero performed attack one\n";
+}
+
+void MartialHero::perform_attack_two() {
+    try {
+        set_spritesheet(MartialHero::ATTACK2);
+    } catch (const std::exception& e) {
+        throw;
+    }
+
+    std::cout << "MartialHero performed attack two\n";
+}
+
+void MartialHero::load(ResourceManager& p_manager) {
+    add_spritesheet(Spritesheet(p_manager, 
+    (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/idle_copy.png").c_str(), 
     1, 4, 8, {0, 1, 2, 3}, true));
 
-    addSpritesheet
+    add_spritesheet
     (Spritesheet(p_manager, 
-    (p_manager->getBasePathFromWindow() + "../assets/sprites/martial_hero/run_copy_copy.png").c_str(), 
+    (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/run_copy_copy.png").c_str(), 
     1, 8, 8, {0, 1, 2, 3, 4, 5, 6, 7}, true));
 
-    addSpritesheet(Spritesheet(p_manager, 
-    (p_manager->getBasePathFromWindow() + "../assets/sprites/martial_hero/jump_copy.png").c_str(), 
+    add_spritesheet(Spritesheet(p_manager, 
+    (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/jump_copy.png").c_str(), 
     1, 2, 8, {0, 1}, true));
 
-    addSpritesheet(Spritesheet(p_manager, 
-    (p_manager->getBasePathFromWindow() + "../assets/sprites/martial_hero/attack1_copy.png").c_str(), 
+    add_spritesheet(Spritesheet(p_manager, 
+    (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/attack1_copy.png").c_str(), 
+    1, 4, 12, {0, 1, 2, 3}, false));
+
+    add_spritesheet(Spritesheet(p_manager, 
+    (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/Attack2.png").c_str(), 
     1, 4, 12, {0, 1, 2, 3}, false));
 }
 
-const SDL_Rect& MartialHero::getCharDim() const {
-    return m_spritesheets[m_index].getSpriteDim();
+Wizard::Wizard(ResourceManager& p_manager, int p_speed, int p_char_ID, bool pFacingLeft) : CharacterBase(p_speed, p_char_ID) {
+    mHealthPoints = 100;
+    mDamageAmount = 4;
+    mFacingLeft = pFacingLeft;
+    load(p_manager);
 }
 
-const SDL_Point& MartialHero::getInitPos() const {
-    return m_initialPosition;
+const std::string& Wizard::get_character_class() const {
+    static const std::string& huntressClass = "Wizard";
+    return huntressClass;
 }
 
-SDL_Rect& CharacterBase::getCurrentPosition() {
-    return m_position;
+void Wizard::perform_attack_one() {
+    try {
+        set_spritesheet(Wizard::ATTACK1);
+    } catch (const std::exception& e) {
+        throw;
+    }
+
+    std::cout << "Wizard performed attack one\n";
 }
+
+void Wizard::perform_attack_two() {
+    try {
+        set_spritesheet(Wizard::ATTACK2);
+    } catch (const std::exception& e) {
+        throw;
+    }
+
+    std::cout << "Wizard performed attack two\n";
+}
+
+void Wizard::load(ResourceManager& pManager) {
+    add_spritesheet(Spritesheet(pManager, 
+    (pManager.get_base_path_from_window() + "../assets/sprites/huntress/Idle.png").c_str(), 
+    1, 6, 10, {0, 1, 2, 3, 4, 5}, true));
+
+    add_spritesheet(Spritesheet(pManager, 
+    (pManager.get_base_path_from_window() + "../assets/sprites/huntress/Run.png").c_str(), 
+    1, 8, 10, {0, 1, 2, 3, 4, 5, 6, 7}, true));
+
+    add_spritesheet(Spritesheet(pManager, 
+    (pManager.get_base_path_from_window() + "../assets/sprites/huntress/Jump.png").c_str(), 
+    1, 2, 10, {0, 1}, true));
+
+    add_spritesheet(Spritesheet(pManager, 
+    (pManager.get_base_path_from_window() + "../assets/sprites/huntress/Attack1.png").c_str(), 
+    1, 8, 14, {0, 1, 2, 3, 4, 5, 6, 7}, false));
+
+    add_spritesheet(Spritesheet(pManager, 
+    (pManager.get_base_path_from_window() + "../assets/sprites/huntress/Attack2.png").c_str(), 
+    1, 8, 14, {0, 1, 2, 3, 4, 5, 6, 7}, false));
+}
+

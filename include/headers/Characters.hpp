@@ -9,22 +9,24 @@
 
 class CharacterBase {
     protected:
-        SDL_Rect m_position{}; // scaled position
-        SDL_Point m_unscaledPosition{};
-        int m_index = 0;
-        std::vector<Spritesheet> m_spritesheets;
-        int m_speed{};
-        bool m_lastPressedLeft = false;
-        int m_characterID;
-        bool m_isAttacking = false;
+        SDL_Rect mPosition{};
+        int mIndex = 0;
+        std::vector<Spritesheet> mSpritesheets;
+        int mSpeed{};
+        bool mFacingLeft = false;
+        int mCharacterID;
+        int mPlayerClass;
+        bool mIsAttacking = false;
+        float mHealthPoints{};
+        float mDamageAmount{};
 
         // Don't need this as of now, but keeping it just in case. Will be removed in the "final" product if not required by then.
-        SDL_Point m_initialPosition{};
+        SDL_Point mInitialPosition{};
 
     public:
-        enum BasicMovements {
-            WALK,
-            RUN
+        enum PlayerClasses {
+            MartialHero,
+            Wizard
         };
 
         enum characterIDs {
@@ -32,32 +34,47 @@ class CharacterBase {
             PLAYERTWO
         };
 
-        bool m_isInAir = false;
-        float m_verticalVelocity{};
+        enum SpritesheetIndices {
+            IDLE,
+            RUN,
+            JUMP,
+            ATTACK1,
+            ATTACK2,
+            DEATH,
+            FALL,
+            TAKE_HIT
+        };
 
+        bool mIsInAir = false;
+        float mJumpVelocity{};
+
+        CharacterBase();
         CharacterBase(int p_speed, int p_char_ID);
 
         virtual ~CharacterBase() {}
 
-        void addSpritesheet(const Spritesheet p_spritesheet);
-        Spritesheet& getSpritesheet(int index);
-        const SDL_Rect& getCharRect() const;
-        SDL_Rect& getCurrentPosition();
-        const SDL_Rect& getCharDimensions();
-        const int getCurrentAnimIndex() const;
+        void add_spritesheet(const Spritesheet p_spritesheet);
+        SDL_Rect& get_current_position();
+        const int get_current_anim_index() const;
+        const bool is_attacking() const;
+        const bool facing_left() const;
 
-        void setSpritesheet(int p_index);
+        void set_spritesheet(int p_index);
 
         void move(float, const Uint8*, int, const SDL_Rect&, int, bool);
-        void setPosition(SDL_Rect p_position);
+        void set_position(SDL_Rect p_position);
 
-        virtual void playAnim() = 0;
-        virtual void performAttack1() = 0;
-        // virtual void update(float deltaTime) = 0;
-        virtual void update(float, const SDL_Rect&) = 0;
-        virtual void load(ResourceManager*) = 0;
-        virtual void performAttack2();
-        virtual void performAttack3();
+        void render_animation();
+        void update(float, const SDL_Rect&, const Uint8*);
+        void take_damage(int pDamageAmount = 4);
+        const SDL_Rect& get_character_dims() const;
+        void set_initial_position(SDL_Point p_pos);
+        const SDL_Point& get_initial_position() const;
+
+        virtual const std::string& get_character_class() const;
+        virtual void perform_attack_one();
+        virtual void perform_attack_two();
+        virtual void load(ResourceManager&) = 0;
 };
 
 class MartialHero : public CharacterBase {
@@ -73,15 +90,31 @@ class MartialHero : public CharacterBase {
             TAKE_HIT
         };
 
-        MartialHero(ResourceManager* p_manager, int p_speed, int p_char_ID);
+        MartialHero(ResourceManager& p_manager, int p_speed, int p_char_ID, bool pFacingLeft);
+        
+        virtual const std::string& get_character_class() const override;
+        virtual void perform_attack_one() override;
+        virtual void perform_attack_two() override;
+        void load(ResourceManager& p_manager) override;
+};
 
-        void playAnim() override;
-        void performAttack1() override;
-        void update(float, const SDL_Rect&) override;
-        void load(ResourceManager* p_manager) override;
+class Wizard : public CharacterBase {
+    public:
+        enum SpritesheetIndices {
+            IDLE,
+            RUN,
+            JUMP,
+            ATTACK1,
+            ATTACK2,
+            DEATH,
+            FALL,
+            TAKE_HIT
+        };
 
-        void setInitialPosition(SDL_Point p_pos);
-
-        const SDL_Rect& getCharDim() const;
-        const SDL_Point& getInitPos() const;
+        Wizard(ResourceManager& p_manager, int p_speed, int p_char_ID, bool pFacingLeft);
+        
+        virtual const std::string& get_character_class() const override;
+        virtual void perform_attack_one() override;
+        virtual void perform_attack_two() override;
+        void load(ResourceManager& p_manager) override;
 };

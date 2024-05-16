@@ -50,7 +50,3 @@ The project has the following directory structure:
 - `obj/`: Contains the compiled object files.
 - `bin/`: Contains the compiled executable.
 - `makefile`: The build configuration file.
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).

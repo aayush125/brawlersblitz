@@ -7,34 +7,31 @@
 
 class Spritesheet {
     private:
-        SDL_Rect m_currentFrame{};
-        SDL_Texture* m_spritesheet_image = nullptr;
-        Entity selected_sprite_entity;
-        ResourceManager* m_managerref = nullptr;
-        SDL_Rect m_spriteDimensions{};
-        bool m_shouldFlip;
-        bool m_loop;
-        int m_animationSize{};
-        bool m_finishedPlaying = false;
+        SDL_Rect mCurrentFrame{};
+        SDL_Texture* mSpritesheetImage = nullptr;
+        Entity mSelectedSpriteEntity;
+        ResourceManager& mManager;
+        SDL_Rect mSpriteDimensions{};
+        bool mShouldFlip;
+        bool mLoop;
+        int mAnimationSize{};
+        bool mFinishedPlaying = false;
 
         // Animation attributes
-        std::vector<int> m_animationFrames;
-        float m_animationDelay{};
-        int m_currentAnimFrame{};
-        float m_animationTimer{};
+        std::vector<int> mAnimationFrames;
+        float mAnimationDelay{};
+        int mCurrentAnimFrame{};
+        float mAnimationTimer{};
 
-    public:
-        bool m_playOnce = false;
-        
-        Spritesheet();
-        Spritesheet(ResourceManager* manager, const char* path, int row, int column, int animationFps, std::vector<int> animationFrames, bool loop);
+    public:        
+        Spritesheet(ResourceManager& manager, const char* path, int row, int column, int animationFps, std::vector<int> animationFrames, bool loop);
 
         void select_sprite(int x, int y);
         void draw_selected_sprite(SDL_Rect& position);
         void update(float deltaTime);
-        void playAnim(SDL_Rect& p_position, bool p_flipFlag);
+        void play_spritesheet(SDL_Rect& p_position, bool p_flipFlag);
 
-        const SDL_Rect& getSpriteDim() const;
-        const int getCurrentFrameNum() const;
-        const bool finishedPlaying() const;
+        const SDL_Rect& get_sprite_dims() const;
+        const int get_current_frame_number() const;
+        const bool finished_playing() const;
 };
