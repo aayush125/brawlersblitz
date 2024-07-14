@@ -181,24 +181,24 @@ void GameEngine::handle_player_attacks() {
     bool colliding = mPhysics.collides(mPlayerOne->get_current_position(), mPlayerTwo->get_current_position(), charwidth, charwidthTwo);
     if (mPlayerOne->is_attacking() && !mPlayerTwo->is_attacking() && can_register_attack(CharacterBase::characterIDs::PLAYERONE)) {
         if (colliding && !mPlayerOneAttackProcessed) {
-            if (playerOneClass == "Wizard") mPlayerTwo->take_damage(8);
+            if (playerOneClass == "Wizard") mPlayerTwo->take_damage(4);
             else mPlayerTwo->take_damage();
             mPlayerOneAttackProcessed = true;
         }   
     } else if (!mPlayerOne->is_attacking() && mPlayerTwo->is_attacking() && can_register_attack(CharacterBase::characterIDs::PLAYERTWO)) {
         if (colliding && !mPlayerTwoAttackProcessed) {
-            if (playerTwoClass == "Wizard") mPlayerOne->take_damage(8);
+            if (playerTwoClass == "Wizard") mPlayerOne->take_damage(4);
             else mPlayerOne->take_damage();
             mPlayerTwoAttackProcessed = true;
         }
     } else if (mPlayerOne->is_attacking() && mPlayerTwo->is_attacking()) {
         if (colliding && (!mPlayerOneAttackProcessed || !mPlayerTwoAttackProcessed)) {
             if (can_register_attack(CharacterBase::characterIDs::PLAYERONE)) {
-                if (playerTwoClass == "Wizard") mPlayerOne->take_damage(8);
+                if (playerTwoClass == "Wizard") mPlayerOne->take_damage(4);
                 else mPlayerOne->take_damage();
             };
             if (can_register_attack(CharacterBase::characterIDs::PLAYERTWO)) {
-                if (playerOneClass == "Wizard") mPlayerTwo->take_damage(8);
+                if (playerOneClass == "Wizard") mPlayerTwo->take_damage(4);
                 else mPlayerTwo->take_damage();
             };
 
@@ -216,6 +216,8 @@ void GameEngine::handle_player_attacks() {
 }
 
 void GameEngine::player_updates(float pDeltaTime, const Uint8* pKeystates) {
+    // Check current health. If it's run out, play the death animation and proceed with the winning screen. [for the future: after winning screen, return to start menu]
+    
     try {
         mPlayerOne->update(pDeltaTime, mWindow.get_window_rect(), pKeystates);
     } catch(std::exception& e) {
@@ -238,6 +240,9 @@ void GameEngine::update_game(float pDeltaTime) {
 
     // Apply player updates
     player_updates(pDeltaTime, keystates);
+
+    // Apply UI updates
+    in_game_ui->update(mPlayerOne->get_current_health(), mPlayerTwo->get_current_health());
 }
 
 void GameEngine::render_scene() {

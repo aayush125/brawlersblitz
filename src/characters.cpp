@@ -96,6 +96,17 @@ void CharacterBase::move(float p_deltaTime, const Uint8* p_keystates, int sprite
         mIsInAir = true;
     }
 
+    if (mCharacterID == CharacterBase::characterIDs::PLAYERONE && p_keystates[SDL_SCANCODE_Q]) {
+        try {
+            set_spritesheet(MartialHero::DEATH);
+        } catch (const std::out_of_range& e) {
+            throw;
+        }
+        mDeathAnimPlaying = true;
+
+        return;
+    }
+
     bool isMoving = isMovingRight || isMovingLeft;
 
     if (!isMoving && !mIsInAir && !mIsAttacking) {
@@ -139,7 +150,7 @@ void CharacterBase::move(float p_deltaTime, const Uint8* p_keystates, int sprite
     }
     
     mPosition.x += speed * p_deltaTime;
-    mPosition.y += mJumpVelocity * p_deltaTime * 8;
+    // mPosition.y += mJumpVelocity * p_deltaTime * 8;
 
     // The horizontal padding around each frame averages around 200
     if (mPosition.x < -mPosition.w + 200) {
@@ -170,19 +181,21 @@ void CharacterBase::set_initial_position(SDL_Point p_pos) {
 void CharacterBase::update(float deltaTime, const SDL_Rect& p_windowRect, const Uint8* pKeystates) {
     // update process: get keyboard updates -> update position -> update scaling -> call spritesheet update -> ready for rendering
 
-    if (!mIsAttacking) {
+    bool* playing_anim;
+    if (!mIsAttacking && !mDeathAnimPlaying) {
         try {
             move(deltaTime, pKeystates, 0, p_windowRect);
         } catch (std::out_of_range& e) {
             throw;
         }
     } else {
+        playing_anim = mIsAttacking ? &mIsAttacking : &mDeathAnimPlaying;
         if (mSpritesheets[mIndex].finished_playing()) {
-            mIsAttacking = false;
+            *playing_anim = false;
             set_spritesheet(MartialHero::IDLE);
         }
     }
-
+    mPosition.y += mJumpVelocity * deltaTime * 8;
     mSpritesheets[mIndex].update(deltaTime);
 }
 
@@ -199,8 +212,13 @@ SDL_Rect& CharacterBase::get_current_position() {
 }
 
 void CharacterBase::take_damage(int pDamageAmount) {
-    if (mHealthPoints >= 0) mHealthPoints -= pDamageAmount;
+    if (mHealthPoints >= pDamageAmount) mHealthPoints -= pDamageAmount;
+    else if (mHealthPoints >= 0) mHealthPoints -= mHealthPoints;
     std::cout << "Character ID: " << mCharacterID << " remaining health points: " << mHealthPoints << '\n';
+}
+
+const float CharacterBase::get_current_health() const {
+    return mHealthPoints;
 }
 
 const std::string& CharacterBase::get_character_class() const {
@@ -269,6 +287,10 @@ void MartialHero::load(ResourceManager& p_manager) {
     add_spritesheet(Spritesheet(p_manager, 
     (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/Attack2.png").c_str(), 
     1, 4, 12, {0, 1, 2, 3}, false));
+
+    add_spritesheet(Spritesheet(p_manager, 
+    (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/death_copy.png").c_str(), 
+    1, 7, 12, {0, 1, 2, 3, 4, 5, 6}, false));
 }
 
 Wizard::Wizard(ResourceManager& p_manager, int p_speed, int p_char_ID, bool pFacingLeft) : CharacterBase(p_speed, p_char_ID) {

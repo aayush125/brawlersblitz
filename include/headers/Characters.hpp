@@ -17,6 +17,7 @@ class CharacterBase {
         int mCharacterID;
         int mPlayerClass;
         bool mIsAttacking = false;
+        bool mDeathAnimPlaying = false;
         float mHealthPoints{};
         float mDamageAmount{};
 
@@ -56,6 +57,7 @@ class CharacterBase {
         void add_spritesheet(const Spritesheet p_spritesheet);
         SDL_Rect& get_current_position();
         const int get_current_anim_index() const;
+        const float get_current_health() const;
         const bool is_attacking() const;
         const bool facing_left() const;
 
@@ -66,7 +68,7 @@ class CharacterBase {
 
         void render_animation();
         void update(float, const SDL_Rect&, const Uint8*);
-        void take_damage(int pDamageAmount = 4);
+        void take_damage(int pDamageAmount = 2);
         const SDL_Rect& get_character_dims() const;
         void set_initial_position(SDL_Point p_pos);
         const SDL_Point& get_initial_position() const;

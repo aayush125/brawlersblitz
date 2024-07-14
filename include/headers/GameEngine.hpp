@@ -18,7 +18,6 @@ class GameEngine {
         void init_players();
         void update_game(float pDeltaTime);
         void render_scene();
-        // void take_hit(CharacterBase& pCharacterOne, CharacterBase& pCharacterTwo);
 
         CharacterBase& get_player_one();
         CharacterBase& get_player_two();

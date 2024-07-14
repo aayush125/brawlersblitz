@@ -49,13 +49,20 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
 $(OBJ_DIR) $(BIN_DIR):
 	mkdir -p $@
 
-.PHONY: all clean
+# Include dependencies
+-include $(OBJS:.o=.d)
+
+# Rule to generate dependency files
+$(OBJ_DIR)/%.d: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+	@$(CC) $(CFLAGS) $(INCLUDES) -MM -MT $(@:.d=.o) $< > $@
+
+.PHONY: clean
 
 # Clean rule
 clean:
 	@echo 'Cleaning up...'
 ifeq ($(OS),Windows_NT)
-	del /Q $(OBJ_DIR)\*.o $(BIN_DIR)\game.exe
+	del /Q $(OBJ_DIR)\*.o $(OBJ_DIR)\*.d $(BIN_DIR)\game.exe
 else
-	rm -f $(OBJ_DIR)/*.o $(BIN_DIR)/game
+	rm -f $(OBJ_DIR)/*.o $(OBJ_DIR)/*.d $(BIN_DIR)/game
 endif
