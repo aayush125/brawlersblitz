@@ -5,7 +5,7 @@
 #include <string>
 #include <iostream>
 
-Spritesheet::Spritesheet(ResourceManager& manager, const char *path, int row, int column, int animationFps, std::vector<int> animationFrames, bool loop) : mManager{manager}
+Spritesheet::Spritesheet(ResourceManager &manager, const char *path, int row, int column, int animationFps, std::vector<int> animationFrames, bool loop, bool stopOnLastFrame) : mManager{manager}
 {
 
     mSpritesheetImage = mManager.load_tex(path);
@@ -17,6 +17,7 @@ Spritesheet::Spritesheet(ResourceManager& manager, const char *path, int row, in
     mAnimationTimer = 0.0f;
     mShouldFlip = false;
     mLoop = loop;
+    mStopOnLastFrame = stopOnLastFrame;
 
     SDL_QueryTexture(mSpritesheetImage, NULL, NULL, &mCurrentFrame.w, &mCurrentFrame.h);
     mCurrentFrame.w /= column;
@@ -32,16 +33,18 @@ void Spritesheet::select_sprite(int x, int y)
     mCurrentFrame.y = y * mCurrentFrame.h;
 }
 
-void Spritesheet::draw_selected_sprite(SDL_Rect& position)
+void Spritesheet::draw_selected_sprite(SDL_Rect &position)
 {
     mManager.render_tex(mSpritesheetImage, mCurrentFrame, position, mShouldFlip);
 }
 
 void Spritesheet::update(float deltaTime)
 {
-    if (!mLoop && mCurrentAnimFrame == mAnimationSize - 1) {
+    if (!mLoop && mCurrentAnimFrame == mAnimationSize - 1)
+    {
         mFinishedPlaying = true;
-        mCurrentAnimFrame = 0;
+        if (!mStopOnLastFrame)
+            mCurrentAnimFrame = 0;
         return;
     }
 
@@ -56,7 +59,7 @@ void Spritesheet::update(float deltaTime)
     }
 }
 
-void Spritesheet::play_spritesheet(SDL_Rect& p_position, bool p_flipFlag)
+void Spritesheet::play_spritesheet(SDL_Rect &p_position, bool p_flipFlag)
 {
     mShouldFlip = p_flipFlag;
 
@@ -64,14 +67,17 @@ void Spritesheet::play_spritesheet(SDL_Rect& p_position, bool p_flipFlag)
     draw_selected_sprite(p_position);
 }
 
-const SDL_Rect& Spritesheet::get_sprite_dims() const {
+const SDL_Rect &Spritesheet::get_sprite_dims() const
+{
     return mSpriteDimensions;
 }
 
-const int Spritesheet::get_current_frame_number() const {
+const int Spritesheet::get_current_frame_number() const
+{
     return mCurrentAnimFrame;
 }
 
-const bool Spritesheet::finished_playing() const {
+const bool Spritesheet::finished_playing() const
+{
     return mFinishedPlaying;
 }

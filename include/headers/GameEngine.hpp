@@ -7,44 +7,57 @@
 #include "ResourceManager.hpp"
 #include "UI.hpp"
 
-class GameEngine {
-    public:
-        GameEngine(ResourceManager& pManager, RenderWindow& pWindow);
+class GameEngine
+{
+public:
+    GameEngine(ResourceManager &pManager, RenderWindow &pWindow);
 
-        void add_player(int pPlayerID, int pPlayerClass);
-        void init(int pScene);
-        void init_scene();
-        void init_physics(int pGroundCoords);
-        void init_players();
-        void update_game(float pDeltaTime);
-        void render_scene();
+    enum RoundResult
+    {
+        NO_WINNER,
+        PLAYER_ONE_WINS,
+        PLAYER_TWO_WINS,
+        DRAW
+    };
 
-        CharacterBase& get_player_one();
-        CharacterBase& get_player_two();
-        bool can_register_attack(int pPlayerID);
-    
-    private:
-        bool mPlayerOneInitialized = false;
-        bool mPlayerTwoInitialized = false;
-        bool mPlayerOneAttackProcessed = false;
-        bool mPlayerTwoAttackProcessed = false;
-        int mDefaultPlayerSpeed = 380;
-        int mCurrentScene{};
-        std::unique_ptr<Background> background = nullptr;
+    void add_player(int pPlayerID, int pPlayerClass);
+    void init(int pScene);
+    void init_scene();
+    void init_physics(int pGroundCoords);
+    void init_players();
+    void update_game(float pDeltaTime);
+    void render_scene();
 
-        std::unique_ptr<UI> in_game_ui = nullptr;
+    CharacterBase &get_player_one();
+    CharacterBase &get_player_two();
+    bool can_register_attack(int pPlayerID);
 
-        ResourceManager& mManager;
-        RenderWindow& mWindow;
+private:
+    bool mPlayerOneInitialized = false;
+    bool mPlayerTwoInitialized = false;
+    bool mPlayerOneAttackProcessed = false;
+    bool mPlayerTwoAttackProcessed = false;
+    bool mRoundOver = false;
+    int mDefaultPlayerSpeed = 380;
+    int mCurrentScene{};
+    std::unique_ptr<Background> background = nullptr;
 
-        std::unique_ptr<CharacterBase> mPlayerOne;
-        std::unique_ptr<CharacterBase> mPlayerTwo;
-        Physics mPhysics;
+    std::unique_ptr<UI> in_game_ui = nullptr;
 
-        template <typename T>
-        void assign_player(int pPlayerID);
+    ResourceManager &mManager;
+    RenderWindow &mWindow;
 
-        void physics_update(float pDeltaTime);
-        void player_updates(float pDeltaTime, const Uint8* pKeystates);
-        void handle_player_attacks();
+    std::unique_ptr<CharacterBase> mPlayerOne;
+    std::unique_ptr<CharacterBase> mPlayerTwo;
+    Physics mPhysics;
+
+    template <typename T>
+    void assign_player(int pPlayerID);
+
+    void physics_update(float pDeltaTime);
+    void player_updates(float pDeltaTime, const Uint8 *pKeystates);
+    void handle_player_attacks();
+    void game_over(std::unique_ptr<CharacterBase> &player);
+    void reset_game_state();
+    GameEngine::RoundResult check_win();
 };

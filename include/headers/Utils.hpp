@@ -21,8 +21,16 @@
 
 #define WIZARD_SCALE 3
 
-namespace utils {
-    inline float hireTimeInSeconds() {
+#define SCORE_HEIGHT 10
+#define SCORE_WIDTH 7
+
+#define SCORE_RENDER_HEIGHT 50
+#define SCORE_RENDER_WIDTH 50
+
+namespace utils
+{
+    inline float hireTimeInSeconds()
+    {
         float t = SDL_GetTicks();
         t *= 0.001f;
 
@@ -30,17 +38,20 @@ namespace utils {
     }
 }
 
-namespace level {
-    enum levels {
+namespace level
+{
+    enum levels
+    {
         MENU,
         LEVELONE
     };
 }
 
-class Vector2f {
-    public:
-        float x{};
-        float y{};
+class Vector2f
+{
+public:
+    float x{};
+    float y{};
 
-        Vector2f(float, float);
+    Vector2f(float, float);
 };
