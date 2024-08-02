@@ -211,11 +211,12 @@ void CharacterBase::reset_player()
     set_spritesheet(IDLE);
 
     mDead = false;
-    mDeathAnimPlaying = false;
     mIsAttacking = false;
 
     if (mCharacterID == PLAYERONE)
         mFacingLeft = false;
+
+    mSpritesheets[DEATH].reset_animation_state(); // Reset state for death animation so it can be played in the next round
 }
 
 const int CharacterBase::get_current_anim_index() const
@@ -283,6 +284,7 @@ void CharacterBase::update(float deltaTime, const SDL_Rect &p_windowRect, const 
             if (mDeathAnimPlaying)
             {
                 mDead = true;
+                mDeathAnimPlaying = false;
                 return;
             }
             else
@@ -475,4 +477,8 @@ void Wizard::load(ResourceManager &pManager)
     add_spritesheet(Spritesheet(pManager,
                                 (pManager.get_base_path_from_window() + "../assets/sprites/huntress/Attack2.png").c_str(),
                                 1, 8, 14, {0, 1, 2, 3, 4, 5, 6, 7}, false, false));
+
+    add_spritesheet(Spritesheet(pManager,
+                                (pManager.get_base_path_from_window() + "../assets/sprites/huntress/Death.png").c_str(),
+                                1, 7, 6, {0, 1, 2, 3, 4, 5, 6}, false, true));
 }

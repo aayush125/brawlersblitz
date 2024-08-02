@@ -319,6 +319,7 @@ void GameEngine::reset_game_state()
 
 void GameEngine::game_over(std::unique_ptr<CharacterBase> &player)
 {
+    std::cout << "Calling gameOver!-------\n";
     mRoundOver = true;
     player->increment_score();
     std::cout << "Worked?\n";
@@ -331,6 +332,7 @@ void GameEngine::player_updates(float pDeltaTime, const Uint8 *pKeystates)
     // Check current health. If it's run out, play the death animation and proceed with the winning screen. [for the future: after winning screen, return to start menu]
 
     int winningPlayer = check_win();
+    // bool roundOver = winningPlayer != GameEngine::RoundResult::NO_WINNER;
 
     if (winningPlayer == GameEngine::RoundResult::PLAYER_ONE_WINS && !mRoundOver)
     {

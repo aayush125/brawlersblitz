@@ -36,4 +36,5 @@ public:
     const SDL_Rect &get_sprite_dims() const;
     const int get_current_frame_number() const;
     const bool finished_playing() const;
+    void reset_animation_state();
 };

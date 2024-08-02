@@ -81,3 +81,9 @@ const bool Spritesheet::finished_playing() const
 {
     return mFinishedPlaying;
 }
+
+void Spritesheet::reset_animation_state()
+{
+    mFinishedPlaying = false;
+    mCurrentAnimFrame = 0;
+}
