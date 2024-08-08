@@ -212,6 +212,7 @@ void CharacterBase::reset_player()
 
     mDead = false;
     mIsAttacking = false;
+    mTakingHit = false;
 
     if (mCharacterID == PLAYERONE)
         mFacingLeft = false;
@@ -253,6 +254,18 @@ void CharacterBase::update(float deltaTime, const SDL_Rect &p_windowRect, const 
         return;
     }
 
+    if (mTakingHit && mIndex != TAKE_HIT && mHealthPoints > 0 && !mIsAttacking)
+    {
+        try
+        {
+            set_spritesheet(CharacterBase::TAKE_HIT);
+        }
+        catch (const std::exception &e)
+        {
+            throw;
+        }
+    }
+
     if (mHealthPoints <= 0 && !mDeathAnimPlaying)
     {
         try
@@ -266,7 +279,7 @@ void CharacterBase::update(float deltaTime, const SDL_Rect &p_windowRect, const 
         }
     }
 
-    if (!mIsAttacking && !mDeathAnimPlaying)
+    if (!mIsAttacking && !mDeathAnimPlaying && !mTakingHit)
     {
         try
         {
@@ -291,6 +304,11 @@ void CharacterBase::update(float deltaTime, const SDL_Rect &p_windowRect, const 
             {
                 if (mIsAttacking)
                     mIsAttacking = false;
+                if (mTakingHit)
+                {
+                    mTakingHit = false;
+                    mSpritesheets[TAKE_HIT].reset_animation_state();
+                }
                 set_spritesheet(MartialHero::IDLE);
             }
         }
@@ -320,6 +338,9 @@ void CharacterBase::take_damage(int pDamageAmount)
         mHealthPoints -= pDamageAmount;
     else if (mHealthPoints >= 0)
         mHealthPoints -= mHealthPoints;
+
+    mTakingHit = true;
+    std::cout << "value of mTakingHit: " << mTakingHit << '\n';
 }
 
 const float CharacterBase::get_current_health() const
@@ -416,6 +437,10 @@ void MartialHero::load(ResourceManager &p_manager)
     add_spritesheet(Spritesheet(p_manager,
                                 (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/death_copy.png").c_str(),
                                 1, 7, 6, {0, 1, 2, 3, 4, 5, 6}, false, true));
+
+    add_spritesheet(Spritesheet(p_manager,
+                                (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/take_hit.png").c_str(),
+                                1, 3, 6, {0, 1, 2}, false, false));
 }
 
 Wizard::Wizard(ResourceManager &p_manager, int p_speed, int p_char_ID, bool pFacingLeft) : CharacterBase(p_speed, p_char_ID)
@@ -481,4 +506,8 @@ void Wizard::load(ResourceManager &pManager)
     add_spritesheet(Spritesheet(pManager,
                                 (pManager.get_base_path_from_window() + "../assets/sprites/huntress/Death.png").c_str(),
                                 1, 7, 6, {0, 1, 2, 3, 4, 5, 6}, false, true));
+
+    add_spritesheet(Spritesheet(pManager,
+                                (pManager.get_base_path_from_window() + "../assets/sprites/huntress/take_hit.png").c_str(),
+                                1, 4, 6, {0, 1, 2, 3}, false, false));
 }

@@ -20,6 +20,7 @@ protected:
     bool mIsAttacking = false;
     bool mDeathAnimPlaying = false;
     bool mDead = false;
+    bool mTakingHit = false;
     float mHealthPoints{};
     float mDamageAmount{};
     int mScore = 0;
@@ -48,8 +49,8 @@ public:
         ATTACK1,
         ATTACK2,
         DEATH,
-        FALL,
-        TAKE_HIT
+        TAKE_HIT,
+        FALL
     };
 
     bool mIsInAir = false;
@@ -101,8 +102,8 @@ public:
         ATTACK1,
         ATTACK2,
         DEATH,
-        FALL,
-        TAKE_HIT
+        TAKE_HIT,
+        FALL
     };
 
     MartialHero(ResourceManager &p_manager, int p_speed, int p_char_ID, bool pFacingLeft);
@@ -124,8 +125,8 @@ public:
         ATTACK1,
         ATTACK2,
         DEATH,
-        FALL,
-        TAKE_HIT
+        TAKE_HIT,
+        FALL
     };
 
     Wizard(ResourceManager &p_manager, int p_speed, int p_char_ID, bool pFacingLeft);
