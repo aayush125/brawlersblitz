@@ -216,6 +216,8 @@ void CharacterBase::reset_player()
 
     if (mCharacterID == PLAYERONE)
         mFacingLeft = false;
+    else if (mCharacterID == PLAYERTWO)
+        mFacingLeft = true;
 
     mSpritesheets[DEATH].reset_animation_state(); // Reset state for death animation so it can be played in the next round
 }
