@@ -10,6 +10,7 @@ GameEngine::GameEngine(ResourceManager &pManager, RenderWindow &pWindow) : mMana
 void GameEngine::init(int pScene)
 {
     mCurrentScene = pScene;
+    mHitStopFrames = 0;
     init_scene();
     init_physics(background->getCollider(Background::collionBoxes::GROUND).y);
     init_players();
@@ -189,6 +190,8 @@ void GameEngine::handle_player_attacks()
     static int charwidthTwo;
     static const std::string &playerOneClass = mPlayerOne->get_character_class();
     static const std::string &playerTwoClass = mPlayerTwo->get_character_class();
+    int hitStopFrames = 3;
+
     if ((mPlayerOne->get_current_anim_index() == CharacterBase::ATTACK1 || mPlayerOne->get_current_anim_index() == CharacterBase::ATTACK2) || (mPlayerTwo->get_current_anim_index() == CharacterBase::ATTACK1 || mPlayerTwo->get_current_anim_index() == CharacterBase::ATTACK2))
     {
         // charwidth = CHAR_ATTACK_WIDTH;
@@ -233,9 +236,15 @@ void GameEngine::handle_player_attacks()
         if (colliding && !mPlayerOneAttackProcessed)
         {
             if (playerOneClass == "Wizard")
+            {
                 mPlayerTwo->take_damage(4);
+                mHitStopFrames = hitStopFrames;
+            }
             else
+            {
                 mPlayerTwo->take_damage();
+                mHitStopFrames = hitStopFrames;
+            }
             mPlayerOneAttackProcessed = true;
         }
     }
@@ -244,9 +253,15 @@ void GameEngine::handle_player_attacks()
         if (colliding && !mPlayerTwoAttackProcessed)
         {
             if (playerTwoClass == "Wizard")
+            {
                 mPlayerOne->take_damage(4);
+                mHitStopFrames = hitStopFrames;
+            }
             else
+            {
                 mPlayerOne->take_damage();
+                mHitStopFrames = hitStopFrames;
+            }
             mPlayerTwoAttackProcessed = true;
         }
     }
@@ -257,16 +272,28 @@ void GameEngine::handle_player_attacks()
             if (can_register_attack(CharacterBase::characterIDs::PLAYERONE))
             {
                 if (playerTwoClass == "Wizard")
+                {
                     mPlayerOne->take_damage(4);
+                    mHitStopFrames = hitStopFrames;
+                }
                 else
+                {
                     mPlayerOne->take_damage();
+                    mHitStopFrames = hitStopFrames;
+                }
             };
             if (can_register_attack(CharacterBase::characterIDs::PLAYERTWO))
             {
                 if (playerOneClass == "Wizard")
+                {
                     mPlayerTwo->take_damage(4);
+                    mHitStopFrames = hitStopFrames;
+                }
                 else
+                {
                     mPlayerTwo->take_damage();
+                    mHitStopFrames = hitStopFrames;
+                }
             };
 
             if (!mPlayerOneAttackProcessed)
@@ -310,20 +337,25 @@ GameEngine::RoundResult GameEngine::check_win()
     return GameEngine::RoundResult::NO_WINNER;
 }
 
-void GameEngine::reset_game_state()
+void GameEngine::reset_game_state(bool p_reset_score)
 {
     // Reset the positions of the players and their healths
-    mPlayerOne->reset_player();
-    mPlayerTwo->reset_player();
+    mPlayerOne->reset_player(p_reset_score);
+    mPlayerTwo->reset_player(p_reset_score);
 }
 
 void GameEngine::game_over(std::unique_ptr<CharacterBase> &player)
 {
-    std::cout << "Calling gameOver!-------\n";
     mRoundOver = true;
     player->increment_score();
-    std::cout << "Worked?\n";
-    reset_game_state();
+    if (player->get_current_score() == 3)
+    {
+        reset_game_state(true);
+    }
+    else
+    {
+        reset_game_state();
+    }
     mRoundOver = false;
 }
 
@@ -374,6 +406,17 @@ void GameEngine::player_updates(float pDeltaTime, const Uint8 *pKeystates)
 
 void GameEngine::update_game(float pDeltaTime)
 {
+    if (mHitStopFrames > 0)
+    {
+        std::cout << "Hit stop frames: " << mHitStopFrames << std::endl;
+        mHitStopFrames--;
+        return;
+    }
+    else
+    {
+        mHitStopFrames = 0;
+    }
+
     const Uint8 *keystates = SDL_GetKeyboardState(NULL);
     // Apply physics updates to all game entities
     physics_update(pDeltaTime);

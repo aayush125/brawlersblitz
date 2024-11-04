@@ -42,6 +42,8 @@ private:
     int mCurrentScene{};
     std::unique_ptr<Background> background = nullptr;
 
+    int mHitStopFrames;
+
     std::unique_ptr<UI> in_game_ui = nullptr;
 
     ResourceManager &mManager;
@@ -58,6 +60,6 @@ private:
     void player_updates(float pDeltaTime, const Uint8 *pKeystates);
     void handle_player_attacks();
     void game_over(std::unique_ptr<CharacterBase> &player);
-    void reset_game_state();
+    void reset_game_state(bool p_reset_score = false);
     GameEngine::RoundResult check_win();
 };

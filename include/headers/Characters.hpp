@@ -81,7 +81,7 @@ public:
     void take_damage(int pDamageAmount = 2);
     const SDL_Rect &get_character_dims() const;
     void set_initial_position(SDL_Point p_pos);
-    void reset_player();
+    void reset_player(bool p_reset_score = false);
     const SDL_Point &get_initial_position() const;
     bool dead();
 

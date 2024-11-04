@@ -201,7 +201,7 @@ void CharacterBase::set_position(SDL_Rect p_position)
     mPosition = p_position;
 }
 
-void CharacterBase::reset_player()
+void CharacterBase::reset_player(bool p_reset_score)
 {
     mPosition.x = mInitialPosition.x;
     mPosition.y = mInitialPosition.y;
@@ -220,6 +220,11 @@ void CharacterBase::reset_player()
         mFacingLeft = true;
 
     mSpritesheets[DEATH].reset_animation_state(); // Reset state for death animation so it can be played in the next round
+
+    if (p_reset_score)
+    {
+        mScore = 0;
+    }
 }
 
 const int CharacterBase::get_current_anim_index() const
@@ -430,11 +435,11 @@ void MartialHero::load(ResourceManager &p_manager)
 
     add_spritesheet(Spritesheet(p_manager,
                                 (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/attack1_copy.png").c_str(),
-                                1, 4, 12, {0, 1, 2, 3}, false, false));
+                                1, 4, 8, {0, 1, 2, 3}, false, false));
 
     add_spritesheet(Spritesheet(p_manager,
                                 (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/Attack2.png").c_str(),
-                                1, 4, 12, {0, 1, 2, 3}, false, false));
+                                1, 4, 8, {0, 1, 2, 3}, false, false));
 
     add_spritesheet(Spritesheet(p_manager,
                                 (p_manager.get_base_path_from_window() + "../assets/sprites/martial_hero/death_copy.png").c_str(),
