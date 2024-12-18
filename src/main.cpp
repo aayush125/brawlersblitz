@@ -16,13 +16,6 @@
 
 // Next up: Clean up code and implement final player winning screen
 
-
-
-// TODO: An init() function that initializes variables like scaleX and scaleY and other stuff [PARTIALLY DONE]
-// TODO: Generalize getting the attack being performed by players, and other stuff
-// TODO: Jumping after pressing the attack key stops the attack. Fix it. [FIXED, BUT NEEDS CODE CLEANUP]
-// TODO: Detect collision along the y-axis
-
 int main(int argc, char* argv[]) {
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
         std::cout << "Error initializing SDL:\n" << SDL_GetError() << std::endl;
